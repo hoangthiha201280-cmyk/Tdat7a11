@@ -1,0 +1,768 @@
+--==================================================
+-- TDAT K14 HUB
+-- Roblox Studio - LocalScript
+-- Đặt tại StarterPlayer > StarterPlayerScripts
+--==================================================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = workspace.CurrentCamera
+
+local TEST_KEY = "tdatvip2026"
+
+--==================================================
+-- SETTINGS
+--==================================================
+
+local ESPEnabled = false
+local SpeedEnabled = false
+local JumpEnabled = false
+local FOVEnabled = false
+local AimEnabled = false
+local Attacking = false
+
+local NORMAL_SPEED = 16
+local BOOST_SPEED = 32
+
+local NORMAL_JUMP = 50
+local BOOST_JUMP = 100
+
+local AIM_FOV = 120
+local AIM_SMOOTHNESS = 0.18
+
+--==================================================
+-- CLEAN OLD GUI
+--==================================================
+
+local OldGui = PlayerGui:FindFirstChild("TDAT_K14")
+if OldGui then
+    OldGui:Destroy()
+end
+
+--==================================================
+-- GUI
+--==================================================
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "TDAT_K14"
+Gui.ResetOnSpawn = false
+Gui.IgnoreGuiInset = true
+Gui.Parent = PlayerGui
+
+--==================================================
+-- GET KEY
+--==================================================
+
+local KeyFrame = Instance.new("Frame")
+KeyFrame.Size = UDim2.new(0,300,0,180)
+KeyFrame.Position = UDim2.new(0.5,-150,0.5,-90)
+KeyFrame.BackgroundColor3 = Color3.fromRGB(20,20,25)
+KeyFrame.BorderSizePixel = 0
+KeyFrame.Parent = Gui
+
+local KeyCorner = Instance.new("UICorner")
+KeyCorner.CornerRadius = UDim.new(0,12)
+KeyCorner.Parent = KeyFrame
+
+local KeyTitle = Instance.new("TextLabel")
+KeyTitle.Size = UDim2.new(1,0,0,45)
+KeyTitle.BackgroundTransparency = 1
+KeyTitle.Text = "TDAT K14 • GET KEY"
+KeyTitle.TextColor3 = Color3.fromRGB(255,255,255)
+KeyTitle.TextSize = 20
+KeyTitle.Font = Enum.Font.GothamBold
+KeyTitle.Parent = KeyFrame
+
+local KeyBox = Instance.new("TextBox")
+KeyBox.Size = UDim2.new(1,-40,0,40)
+KeyBox.Position = UDim2.new(0,20,0,55)
+KeyBox.BackgroundColor3 = Color3.fromRGB(35,35,42)
+KeyBox.PlaceholderText = "Nhập key..."
+KeyBox.Text = ""
+KeyBox.TextColor3 = Color3.fromRGB(255,255,255)
+KeyBox.PlaceholderColor3 = Color3.fromRGB(150,150,150)
+KeyBox.TextSize = 16
+KeyBox.Font = Enum.Font.Gotham
+KeyBox.ClearTextOnFocus = false
+KeyBox.Parent = KeyFrame
+
+local KeyBoxCorner = Instance.new("UICorner")
+KeyBoxCorner.CornerRadius = UDim.new(0,8)
+KeyBoxCorner.Parent = KeyBox
+
+local CheckButton = Instance.new("TextButton")
+CheckButton.Size = UDim2.new(1,-40,0,40)
+CheckButton.Position = UDim2.new(0,20,0,110)
+CheckButton.BackgroundColor3 = Color3.fromRGB(60,120,255)
+CheckButton.Text = "XÁC NHẬN KEY"
+CheckButton.TextColor3 = Color3.fromRGB(255,255,255)
+CheckButton.TextSize = 15
+CheckButton.Font = Enum.Font.GothamBold
+CheckButton.Parent = KeyFrame
+
+local CheckCorner = Instance.new("UICorner")
+CheckCorner.CornerRadius = UDim.new(0,8)
+CheckCorner.Parent = CheckButton
+
+local KeyStatus = Instance.new("TextLabel")
+KeyStatus.Size = UDim2.new(1,-20,0,22)
+KeyStatus.Position = UDim2.new(0,10,1,-25)
+KeyStatus.BackgroundTransparency = 1
+KeyStatus.Text = ""
+KeyStatus.TextSize = 13
+KeyStatus.Font = Enum.Font.Gotham
+KeyStatus.TextColor3 = Color3.fromRGB(255,80,80)
+KeyStatus.Parent = KeyFrame
+
+--==================================================
+-- MAIN MENU
+--==================================================
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0,330,0,440)
+Main.Position = UDim2.new(0,30,0.5,-220)
+Main.BackgroundColor3 = Color3.fromRGB(18,18,23)
+Main.BorderSizePixel = 0
+Main.Visible = false
+Main.Parent = Gui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0,12)
+MainCorner.Parent = Main
+
+--==================================================
+-- DRAG
+--==================================================
+
+local function MakeDraggable(Frame)
+
+    local Dragging = false
+    local DragStart
+    local StartPosition
+
+    Frame.InputBegan:Connect(function(Input)
+
+        if Input.UserInputType == Enum.UserInputType.MouseButton1
+        or Input.UserInputType == Enum.UserInputType.Touch then
+
+            Dragging = true
+            DragStart = Input.Position
+            StartPosition = Frame.Position
+
+            Input.Changed:Connect(function()
+
+                if Input.UserInputState == Enum.UserInputState.End then
+                    Dragging = false
+                end
+
+            end)
+
+        end
+
+    end)
+
+    UserInputService.InputChanged:Connect(function(Input)
+
+        if not Dragging then
+            return
+        end
+
+        if Input.UserInputType ~= Enum.UserInputType.MouseMovement
+        and Input.UserInputType ~= Enum.UserInputType.Touch then
+            return
+        end
+
+        local Delta = Input.Position - DragStart
+
+        Frame.Position = UDim2.new(
+            StartPosition.X.Scale,
+            StartPosition.X.Offset + Delta.X,
+            StartPosition.Y.Scale,
+            StartPosition.Y.Offset + Delta.Y
+        )
+
+    end)
+
+end
+
+MakeDraggable(Main)
+MakeDraggable(KeyFrame)
+
+--==================================================
+-- TITLE
+--==================================================
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0,45)
+Title.BackgroundTransparency = 1
+Title.Text = "TDAT K14 HUB"
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.TextSize = 22
+Title.Font = Enum.Font.GothamBold
+Title.Parent = Main
+
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Size = UDim2.new(1,0,0,25)
+Subtitle.Position = UDim2.new(0,0,0,38)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "tdat đẹp zai nhất vũ trụ"
+Subtitle.TextColor3 = Color3.fromRGB(150,150,160)
+Subtitle.TextSize = 12
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.Parent = Main
+
+--==================================================
+-- BUTTON FUNCTION
+--==================================================
+
+local ButtonY = 70
+
+local function CreateButton(Text)
+
+    local Button = Instance.new("TextButton")
+
+    Button.Size = UDim2.new(1,-30,0,42)
+    Button.Position = UDim2.new(0,15,0,ButtonY)
+
+    Button.BackgroundColor3 = Color3.fromRGB(35,35,43)
+    Button.Text = Text
+    Button.TextColor3 = Color3.fromRGB(240,240,240)
+
+    Button.TextSize = 15
+    Button.Font = Enum.Font.GothamBold
+
+    Button.Parent = Main
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0,8)
+    Corner.Parent = Button
+
+    ButtonY += 48
+
+    return Button
+end
+
+--==================================================
+-- PLAYER ESP
+--==================================================
+
+local ESPButton = CreateButton("Player ESP : OFF")
+
+local ESPObjects = {}
+
+local function RemoveESP(Player)
+
+    local Data = ESPObjects[Player]
+
+    if not Data then
+        return
+    end
+
+    if Data.Highlight then
+        Data.Highlight:Destroy()
+    end
+
+    if Data.Billboard then
+        Data.Billboard:Destroy()
+    end
+
+    ESPObjects[Player] = nil
+end
+
+local function AddESP(Player)
+
+    if Player == LocalPlayer then
+        return
+    end
+
+    if not ESPEnabled then
+        return
+    end
+
+    local Character = Player.Character
+
+    if not Character then
+        return
+    end
+
+    local Root = Character:FindFirstChild("HumanoidRootPart")
+
+    if not Root then
+        return
+    end
+
+    RemoveESP(Player)
+
+    local Highlight = Instance.new("Highlight")
+    Highlight.Name = "TDAT_ESP"
+    Highlight.Adornee = Character
+    Highlight.FillTransparency = 0.65
+    Highlight.OutlineTransparency = 0
+    Highlight.FillColor = Color3.fromRGB(255,60,60)
+    Highlight.OutlineColor = Color3.fromRGB(255,255,255)
+    Highlight.Parent = Character
+
+    local Billboard = Instance.new("BillboardGui")
+    Billboard.Name = "TDAT_NameESP"
+    Billboard.Adornee = Root
+    Billboard.Size = UDim2.new(0,180,0,45)
+    Billboard.StudsOffset = Vector3.new(0,3,0)
+    Billboard.AlwaysOnTop = true
+    Billboard.Parent = Root
+
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1,0,1,0)
+    Label.BackgroundTransparency = 1
+    Label.Text = Player.Name
+    Label.TextColor3 = Color3.fromRGB(255,255,255)
+    Label.TextStrokeTransparency = 0
+    Label.TextSize = 14
+    Label.Font = Enum.Font.GothamBold
+    Label.Parent = Billboard
+
+    ESPObjects[Player] = {
+        Highlight = Highlight,
+        Billboard = Billboard
+    }
+end
+
+local function UpdateESP()
+
+    for _,Player in ipairs(Players:GetPlayers()) do
+
+        if Player ~= LocalPlayer then
+
+            if ESPEnabled then
+                AddESP(Player)
+            else
+                RemoveESP(Player)
+            end
+
+        end
+
+    end
+end
+
+ESPButton.MouseButton1Click:Connect(function()
+
+    ESPEnabled = not ESPEnabled
+
+    ESPButton.Text = "Player ESP : " ..
+        (ESPEnabled and "ON" or "OFF")
+
+    UpdateESP()
+end)
+
+--==================================================
+-- SPEED
+--==================================================
+
+local SpeedButton = CreateButton("Speed : OFF")
+
+SpeedButton.MouseButton1Click:Connect(function()
+
+    SpeedEnabled = not SpeedEnabled
+
+    SpeedButton.Text =
+        "Speed : " .. (SpeedEnabled and "ON" or "OFF")
+
+end)
+
+--==================================================
+-- JUMP
+--==================================================
+
+local JumpButton = CreateButton("Jump : OFF")
+
+JumpButton.MouseButton1Click:Connect(function()
+
+    JumpEnabled = not JumpEnabled
+
+    JumpButton.Text =
+        "Jump : " .. (JumpEnabled and "ON" or "OFF")
+
+end)
+
+--==================================================
+-- FOV
+--==================================================
+
+local FOVButton = CreateButton("FOV : OFF")
+
+FOVButton.MouseButton1Click:Connect(function()
+
+    FOVEnabled = not FOVEnabled
+
+    FOVButton.Text =
+        "FOV : " .. (FOVEnabled and "ON" or "OFF")
+
+    if FOVEnabled then
+        Camera.FieldOfView = 90
+    else
+        Camera.FieldOfView = 70
+    end
+
+end)
+
+--==================================================
+-- AIM ASSIST
+--==================================================
+
+local AimButton = CreateButton("Aim Assist : OFF")
+
+AimButton.MouseButton1Click:Connect(function()
+
+    AimEnabled = not AimEnabled
+
+    AimButton.Text =
+        "Aim Assist : " .. (AimEnabled and "ON" or "OFF")
+
+end)
+
+--==================================================
+-- AIM FOV CIRCLE
+--==================================================
+
+local FOVCircle = Instance.new("Frame")
+FOVCircle.Name = "AimFOV"
+FOVCircle.Size = UDim2.new(0,AIM_FOV*2,0,AIM_FOV*2)
+FOVCircle.AnchorPoint = Vector2.new(0.5,0.5)
+FOVCircle.Position = UDim2.new(0.5,0,0.5,0)
+FOVCircle.BackgroundTransparency = 1
+FOVCircle.Visible = false
+FOVCircle.Parent = Gui
+
+local CircleStroke = Instance.new("UIStroke")
+CircleStroke.Thickness = 1
+CircleStroke.Color = Color3.fromRGB(255,255,255)
+CircleStroke.Transparency = 0.25
+CircleStroke.Parent = FOVCircle
+
+local CircleCorner = Instance.new("UICorner")
+CircleCorner.CornerRadius = UDim.new(1,0)
+CircleCorner.Parent = FOVCircle
+
+--==================================================
+-- AIM TARGET
+--==================================================
+
+local function IsAlive(Player)
+
+    local Character = Player.Character
+
+    if not Character then
+        return false
+    end
+
+    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+
+    if not Humanoid then
+        return false
+    end
+
+    return Humanoid.Health > 0
+end
+
+local function GetAimTarget()
+
+    local BestPlayer = nil
+    local BestDistance = AIM_FOV
+
+    local ScreenCenter = Vector2.new(
+        Camera.ViewportSize.X / 2,
+        Camera.ViewportSize.Y / 2
+    )
+
+    for _,Player in ipairs(Players:GetPlayers()) do
+
+        if Player ~= LocalPlayer and IsAlive(Player) then
+
+            local Character = Player.Character
+
+            local Head = Character and
+                Character:FindFirstChild("Head")
+
+            if Head then
+
+                local ScreenPosition, OnScreen =
+                    Camera:WorldToViewportPoint(Head.Position)
+
+                if OnScreen then
+
+                    local ScreenPoint =
+                        Vector2.new(
+                            ScreenPosition.X,
+                            ScreenPosition.Y
+                        )
+
+                    local Distance =
+                        (ScreenPoint - ScreenCenter).Magnitude
+
+                    if Distance < BestDistance then
+
+                        BestDistance = Distance
+                        BestPlayer = Player
+
+                    end
+
+                end
+
+            end
+
+        end
+
+    end
+
+    return BestPlayer
+end
+
+--==================================================
+-- TOOL ATTACK DETECTION
+--==================================================
+
+local EquippedTool = nil
+local ToolConnections = {}
+
+local function DisconnectTool()
+
+    for _,Connection in ipairs(ToolConnections) do
+
+        if Connection then
+            Connection:Disconnect()
+        end
+
+    end
+
+    ToolConnections = {}
+    EquippedTool = nil
+    Attacking = false
+end
+
+local function ConnectTool(Tool)
+
+    DisconnectTool()
+
+    EquippedTool = Tool
+
+    local ActivatedConnection =
+        Tool.Activated:Connect(function()
+
+            -- Chỉ kích hoạt aim trong lúc Tool được sử dụng.
+            Attacking = true
+
+            task.delay(0.25,function()
+
+                if EquippedTool == Tool then
+                    Attacking = false
+                end
+
+            end)
+
+        end)
+
+    local UnequippedConnection =
+        Tool.Unequipped:Connect(function()
+
+            Attacking = false
+
+        end)
+
+    table.insert(ToolConnections,ActivatedConnection)
+    table.insert(ToolConnections,UnequippedConnection)
+end
+
+local function WatchCharacter(Character)
+
+    DisconnectTool()
+
+    local function CheckTool(Child)
+
+        if Child:IsA("Tool") then
+            ConnectTool(Child)
+        end
+
+    end
+
+    for _,Child in ipairs(Character:GetChildren()) do
+        CheckTool(Child)
+    end
+
+    Character.ChildAdded:Connect(CheckTool)
+end
+
+if LocalPlayer.Character then
+    WatchCharacter(LocalPlayer.Character)
+end
+
+LocalPlayer.CharacterAdded:Connect(function(Character)
+
+    task.wait(0.5)
+
+    WatchCharacter(Character)
+
+end)
+
+--==================================================
+-- AIM UPDATE
+--==================================================
+
+RunService.RenderStepped:Connect(function()
+
+    -- FOV circle
+    FOVCircle.Visible = FOVEnabled and AimEnabled
+
+    -- Player movement
+    local Character = LocalPlayer.Character
+
+    if Character then
+
+        local Humanoid =
+            Character:FindFirstChildOfClass("Humanoid")
+
+        if Humanoid then
+
+            if SpeedEnabled then
+                Humanoid.WalkSpeed = BOOST_SPEED
+            else
+                Humanoid.WalkSpeed = NORMAL_SPEED
+            end
+
+            Humanoid.UseJumpPower = true
+
+            if JumpEnabled then
+                Humanoid.JumpPower = BOOST_JUMP
+            else
+                Humanoid.JumpPower = NORMAL_JUMP
+            end
+
+        end
+
+    end
+
+    -- Aim only while attacking with a Tool
+    if AimEnabled and Attacking and EquippedTool then
+
+        local Target = GetAimTarget()
+
+        if Target and Target.Character then
+
+            local Head =
+                Target.Character:FindFirstChild("Head")
+
+            if Head then
+
+                local CameraPosition =
+                    Camera.CFrame.Position
+
+                local DesiredCFrame =
+                    CFrame.lookAt(
+                        CameraPosition,
+                        Head.Position
+                    )
+
+                Camera.CFrame =
+                    Camera.CFrame:Lerp(
+                        DesiredCFrame,
+                        AIM_SMOOTHNESS
+                    )
+
+            end
+
+        end
+
+    end
+
+end)
+
+--==================================================
+-- PLAYER EVENTS
+--==================================================
+
+Players.PlayerAdded:Connect(function(Player)
+
+    Player.CharacterAdded:Connect(function()
+
+        task.wait(0.5)
+
+        if ESPEnabled then
+            AddESP(Player)
+        end
+
+    end)
+
+end)
+
+Players.PlayerRemoving:Connect(function(Player)
+
+    RemoveESP(Player)
+
+end)
+
+for _,Player in ipairs(Players:GetPlayers()) do
+
+    if Player ~= LocalPlayer then
+
+        Player.CharacterAdded:Connect(function()
+
+            task.wait(0.5)
+
+            if ESPEnabled then
+                AddESP(Player)
+            end
+
+        end)
+
+    end
+
+end
+
+--==================================================
+-- KEY SYSTEM
+--==================================================
+
+local function Unlock()
+
+    KeyFrame.Visible = false
+    Main.Visible = true
+
+end
+
+local function CheckKey()
+
+    if KeyBox.Text == TEST_KEY then
+
+        KeyStatus.Text = "Key đúng!"
+        KeyStatus.TextColor3 =
+            Color3.fromRGB(80,255,120)
+
+        task.wait(0.4)
+
+        Unlock()
+
+    else
+
+        KeyStatus.Text = "Key không đúng!"
+        KeyStatus.TextColor3 =
+            Color3.fromRGB(255,80,80)
+
+    end
+
+end
+
+CheckButton.MouseButton1Click:Connect(CheckKey)
+
+KeyBox.FocusLost:Connect(function(EnterPressed)
+
+    if EnterPressed then
+        CheckKey()
+    end
+
+end)
+
+--==================================================
+-- END
+--==================================================
